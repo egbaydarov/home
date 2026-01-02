@@ -49,8 +49,8 @@ end
 
 return {
   {
-    dir = "/home/boogie/stuff/repos/easy-dotnet.nvim",
-    --"GustavEikaas/easy-dotnet.nvim",
+    --dir = "/home/boogie/stuff/repos/easy-dotnet.nvim",
+    "GustavEikaas/easy-dotnet.nvim",
     cond = is_dotnet_project,
     -- 'nvim-telescope/telescope.nvim' or 'ibhagwan/fzf-lua' or 'folke/snacks.nvim'
     -- are highly recommended for a better experience

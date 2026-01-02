@@ -1,6 +1,6 @@
 set -euo pipefail
 
-DB="$HOME/keepassxc/Passwords.kdbx"
+DB="$HOME/.config/keepassxc/Passwords.kdbx"
 SLOT=1
 
 notify_fdo() {
