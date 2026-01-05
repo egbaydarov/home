@@ -9,7 +9,7 @@ map("n", "<leader>h", vim.lsp.buf.hover, { desc = "Hover documentation" })
 map("n", "<leader>r", vim.lsp.buf.rename, { desc = "Rename symbol" })
 map("n", "<leader><CR>", vim.lsp.buf.code_action, { desc = "Code actions" })
 map("n", "<leader>s", vim.lsp.buf.signature_help, { desc = "Show signature" })
-map("n", "<leader>f", vim.lsp.buf.format, { desc = "Format code" })
+map("n", "<leader>cf", vim.lsp.buf.format, { desc = "Format code" })
 
 local diagnostic_goto = function(severity)
   local go = vim.diagnostic.jump
