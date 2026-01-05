@@ -2,6 +2,7 @@ return {
   {
     "neovim/nvim-lspconfig",
     config = function()
+        vim.lsp.enable("lua_ls")
         vim.lsp.config("lua_ls", {
           on_attach = on_attach,
           capabilities = capabilities,
@@ -20,12 +21,25 @@ return {
               },
             },
           },
-        }) 
-        vim.lsp.enable("lua_ls", {
-          filetypes = { "lua" },
         })
 
+        vim.lsp.enable("clangd")
+        local mingw = vim.fn.exepath("x86_64-w64-mingw32-g++")
+        local cmd = {
+          "clangd",
+          "--background-index",
+          "--clang-tidy",
+          "--completion-style=detailed",
+          "--header-insertion=iwyu",
+        }
+        if mingw ~= "" then
+          table.insert(cmd, "--query-driver=" .. mingw)
+        end
+        vim.lsp.config("clangd", {
+          cmd = cmd
+        })
 
+        vim.lsp.enable("gopls", true)
         vim.lsp.config("gopls",{
            on_attach = on_attach,
            capabilities = capabilities,
@@ -39,8 +53,7 @@ return {
              }
            }
         })
-        vim.lsp.enable("gopls", { filetypes = { "go", "gomod" } })
-    end 
+    end
   },
   {
     'stevearc/conform.nvim',
@@ -48,8 +61,10 @@ return {
     config = function()
       require("conform").setup({
         formatters_by_ft = {
-          --lua = { "stylua" },
+          lua = { "stylua" },
           go = { "gofmt" },
+          c = { "clang-format" },
+          cpp = { "clang-format" },
           --python = { "isort", "black" },
           --rust = { "rustfmt", lsp_format = "fallback" },
           --javascript = { "prettierd", "prettier", stop_after_first = true },
