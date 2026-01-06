@@ -12,6 +12,7 @@ return {
     config = function()
       -- Set up nvim-cmp
       local cmp = require('cmp')
+
       cmp.setup({
         snippet = {
           expand = function(args)
@@ -28,15 +29,10 @@ return {
           { name = 'nvim_lsp' },
           { name = 'buffer' },
           { name = 'path' },
+          { name = 'easy-dotnet' },
+          { name = "vim-dadbod-completion" },
         },
       })
-     -- cmp.setup.filetype({"sql"},{
-      --  sources = {
-       --   { name = "vim-dadbod-completion" },
-      --  { name = "buffer" },
-    --    },
-    --  })
-
 
       -- Enable LSP capabilities for nvim-cmp
       local capabilities = require('cmp_nvim_lsp').default_capabilities()

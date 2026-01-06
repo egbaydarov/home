@@ -122,3 +122,39 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
     vim.fn.mkdir(vim.fn.fnamemodify(file, ":p:h"), "p")
   end,
 })
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "oil",
+  callback = function()
+    vim.keymap.set("n", "<leader><Down>", function()
+      local oil = require("oil")
+
+      if not vim.env.TMUX_PANE then
+        return
+      end
+
+      local entry = oil.get_cursor_entry()
+      if not entry or entry.type ~= "directory" then
+        return
+      end
+
+      local base = oil.get_current_dir()
+      if not base then
+        return
+      end
+
+      local path = vim.fn.fnamemodify(base .. entry.name, ":p")
+      local cd_cmd = "cd -- " .. vim.fn.shellescape(path)
+
+      local run = string.format(
+        "sleep 0.05; tmux send-keys -t %s %s C-m",
+        vim.fn.shellescape(vim.env.TMUX_PANE),
+        vim.fn.shellescape(cd_cmd)
+      )
+
+      vim.fn.system({ "tmux", "run-shell", "-b", run })
+      vim.cmd("qa!")
+    end, { buffer = true, silent = true })
+  end,
+})
+
