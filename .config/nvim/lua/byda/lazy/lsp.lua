@@ -24,20 +24,18 @@ return {
         })
 
         vim.lsp.enable("clangd")
-        local mingw = vim.fn.exepath("x86_64-w64-mingw32-g++")
         local cmd = {
           "clangd",
           "--background-index",
           "--clang-tidy",
           "--completion-style=detailed",
           "--header-insertion=iwyu",
+          "--query-driver=/nix/store/*mingw*/bin/x86_64-w64-mingw32-*"
         }
-        if mingw ~= "" then
-          table.insert(cmd, "--query-driver=" .. mingw)
-        end
         vim.lsp.config("clangd", {
           cmd = cmd
         })
+
 
         vim.lsp.enable("gopls", true)
         vim.lsp.config("gopls",{
