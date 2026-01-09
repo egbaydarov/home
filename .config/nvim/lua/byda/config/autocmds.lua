@@ -56,6 +56,7 @@ vim.api.nvim_create_autocmd("FileType", {
     "checkhealth",
     "dbout",
     "gitsigns-blame",
+    "tmux_pane_out",
     "grug-far",
     "help",
     "lspinfo",
