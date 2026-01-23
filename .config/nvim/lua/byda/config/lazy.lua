@@ -161,7 +161,6 @@ require("lazy").setup(
         -- You can define custom key maps here. If present, the description will
         -- be shown in the help menu.
         -- To disable one of the defaults, set it to false.
-    
         ["<localleader>l"] = {
           function(plugin)
             require("lazy.util").float_term({ "lazygit", "log" }, {
@@ -170,7 +169,6 @@ require("lazy").setup(
           end,
           desc = "Open lazygit log",
         },
-    
         ["<localleader>i"] = {
           function(plugin)
             Util.notify(vim.inspect(plugin), {
@@ -180,7 +178,6 @@ require("lazy").setup(
           end,
           desc = "Inspect Plugin",
         },
-    
         ["<localleader>t"] = {
           function(plugin)
             require("lazy.util").float_term(nil, {

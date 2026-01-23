@@ -15,23 +15,18 @@ tmux capture-pane -J -pS - > $TMPFILE
 # -P: print window id
 # -d: open window in the background
 # -R: read-only mode
-WINDOW_ID=$(tmux new-window -P -d "$VIM_COMMAND -R -c 'norm G' -c 'set laststatus=0' -c 'set noshowcmd' -c 'set noruler' -c 'set noshowmode' -c 'set cmdheight=0' $TMPFILE")
+WINDOW_ID=$(tmux new-window -P -d "$VIM_COMMAND -R \
+  -c 'norm G' \
+  -c 'set nomodifiable' \
+  -c 'nnoremap <silent><buffer> q :quit<CR>' \
+  -c 'set laststatus=0' -c 'set noshowcmd' -c 'set noruler' -c 'set noshowmode' -c 'set cmdheight=0' \
+  $TMPFILE")
 
-# -p: output to stdout
-CURRENT_WINDOW_ID=$(tmux display-message -p '#{window_id}')
-
+tmux rename-window -t "$WINDOW_ID" "copy"
 # -s: source window id
 # -t: target window id
-tmux swap-pane -s $WINDOW_ID -t $CURRENT_WINDOW_ID
-
-# remain on exit makes it so that "pane-died" is triggered when the pane exits, without closing the pane
-# and window.
-tmux set-window-option -t $CURRENT_WINDOW_ID remain-on-exit on
-
-tmux set-hook pane-died "run-shell '\
-    tmux swap-pane -s $CURRENT_WINDOW_ID -t $WINDOW_ID;\
-    tmux kill-window -t $WINDOW_ID;\
-    tmux set-hook -u pane-died;\
-    tmux set-window-option -t $CURRENT_WINDOW_ID remain-on-exit off;
-    '"
+#tmux swap-pane -s $WINDOW_ID -t $CURRENT_WINDOW_ID
+# works better in my setup
+tmux select-window -t $WINDOW_ID
+tmux set-window-option -t $WINDOW_ID remain-on-exit off;
 
