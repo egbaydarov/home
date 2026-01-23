@@ -1,0 +1,95 @@
+" Docs
+" https://github.com/JetBrains/ideavim/wiki/set-commands
+" Map leader can be space or ,
+let mapleader=" "
+
+set clipboard+=unnamed
+
+""" Plugins
+set surround
+set ReplaceWithRegister
+
+" incremental searching
+set incsearch
+
+"print the line number in front of each line
+set relativenumber
+
+"set timeout
+"https://github.com/TheBlob42/idea-which-k
+set timeoutlen=5000
+
+nmap <leader>r <Action>(RenameElement)
+nmap <leader>% <Action>(NewFile)
+
+nmap gi <Action>(ReSharperGotoImplementation)
+nmap gD <Action>(GotoTypeDeclaration)
+nmap gd <Action>(GotoDeclaration)
+nmap gu <Action>(FindUsages)
+
+nmap <leader>e <Action>(GotoNextError)
+nmap <leader>gg <Action>(FindInPath)
+
+nmap <leader>cf <Action>(ReformatCode)
+nmap <leader>cr <Action>(Refactorings.QuickListPopupAction)
+nmap <leader>ca <Action>(QuickActions)
+
+"debug
+"F9 for start 
+map <leader>b <Action>(ToggleLineBreakpoint)
+
+"distraction free"
+map <leader>z <Action>(ToggleDistractionFreeMode)
+
+"project view
+map <leader>pv <Action>(SelectInProjectView)
+nmap <leader>v <Action>(Vcs.QuickListPopupAction)
+nmap <leader>h <Action>(Vcs.ShowTabbedFileHistory)
+nmap <leader>t <Action>(Terminal.OpenInTerminal)
+"git blame"
+map <leader>a <Action>(Annotate)
+map <leader>o <Action>(FileStructurePopup)
+
+"sometimes useful for JWT and around
+vmap <leader>eb6 <Action>(osmedile.intellij.stringmanip.EncodeBase64Action)
+vmap <leader>db6 <Action>(osmedile.intellij.stringmanip.DecodeBase64Action)
+vmap <leader>eu <Action>(osmedile.intellij.stringmanip.encoding.URLEncodeRFC3986)
+vmap <leader>du <Action>(osmedile.intellij.stringmanip.encoding.URLDecodeRFC3986)
+
+"close editor tab
+map <leader>ct <Action>(CloseContent)
+"close terminal, vcs panel
+map <leader>cc <Action>(CloseActiveTab)
+map <leader><ESC> <Action>(CloseActiveTab)
+
+sethandler <C-C> a:vim
+sethandler <C-V> a:vim
+
+sethandler <C-X> a:vim
+sethandler <C-R> a:vim
+sethandler <C-A> a:vim
+sethandler <C-B> a:vim
+sethandler <C-D> a:vim
+sethandler <C-E> a:vim
+sethandler <C-F> a:vim
+sethandler <C-G> a:vim
+sethandler <C-H> a:vim
+sethandler <C-I> a:vim
+sethandler <C-J> a:vim
+sethandler <C-K> a:vim
+sethandler <C-L> a:vim
+sethandler <C-M> a:vim
+sethandler <C-N> a:vim
+sethandler <C-O> a:vim
+sethandler <C-P> a:vim
+sethandler <C-Q> a:vim
+sethandler <C-S> a:vim
+sethandler <C-T> a:vim
+sethandler <C-U> a:vim
+sethandler <C-W> a:vim
+sethandler <C-Y> a:vim
+sethandler <C-[> a:vim
+sethandler <C-]> a:vim
+sethandler <S- > a:vim
+sethandler <C-;> a:vim
+sethandler <C-S-;> a:vim
