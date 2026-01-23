@@ -45,4 +45,6 @@
 !.config/nvim/lua/byda/config/
 !.config/nvim/lua/byda/config/*
 !.tmux.conf
+!.bashrc
+!.profile
 
