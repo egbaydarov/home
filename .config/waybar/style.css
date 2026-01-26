@@ -38,8 +38,8 @@
 }
 
 #waybar.first button:focus,
-#waybar.first button:checked, 
-#waybar.first button:active, 
+#waybar.first button:checked,
+#waybar.first button:active,
 #waybar.first button:focus-visible {
     background: transparent;
     box-shadow: none;

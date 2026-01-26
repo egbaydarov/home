@@ -25,7 +25,7 @@ if [ -f "$SPEED_CACHE" ]; then
     OLD_TIME=$(sed -n '3p' "$SPEED_CACHE" 2>/dev/null || echo 0)
     CURRENT_TIME=$(date +%s)
     TIME_DIFF=$((CURRENT_TIME - OLD_TIME))
-    
+
     if [ $TIME_DIFF -gt 0 ] && [ $TIME_DIFF -le 5 ]; then
         RX_SPEED=$(((RX_BYTES_NEW - RX_BYTES_OLD) / TIME_DIFF))
         TX_SPEED=$(((TX_BYTES_NEW - TX_BYTES_OLD) / TIME_DIFF))
@@ -138,7 +138,7 @@ if [ "$UPDATE_CACHE" = true ]; then
                 printf "%-35s %6d\n", proc, cnt
             }
         }')
-        
+
         if [ -n "$NETWORK_USERS" ]; then
             echo "$NETWORK_USERS" > "$CACHE_FILE" 2>/dev/null
         else

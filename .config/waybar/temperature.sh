@@ -10,16 +10,16 @@ add_temp() {
     local label="$1"
     local temp="$2"
     local temp_int=${temp%.*}
-    
+
     # Normalize label for duplicate detection (remove common variations)
     local normalized_label=$(echo "$label" | tr '[:upper:]' '[:lower:]' | sed 's/temp[0-9]*//g' | sed 's/[^a-z0-9]//g')
-    
+
     # Check if we've seen a similar label or very close temperature (same sensor)
     for seen_label in "${!SEEN_LABELS[@]}"; do
         local seen_temp="${SEEN_LABELS[$seen_label]}"
         local seen_temp_int=${seen_temp%.*}
         local seen_normalized=$(echo "$seen_label" | tr '[:upper:]' '[:lower:]' | sed 's/temp[0-9]*//g' | sed 's/[^a-z0-9]//g')
-        
+
         # Skip if same normalized label or temperatures are within 2°C (likely same sensor)
         if [ "$normalized_label" = "$seen_normalized" ] || ([ $((temp_int - seen_temp_int)) -lt 2 ] && [ $((seen_temp_int - temp_int)) -lt 2 ]); then
             # Prefer the label with more specific info (Tctl over acpitz)
@@ -35,18 +35,18 @@ add_temp() {
             fi
         fi
     done
-    
+
     SEEN_LABELS[$label]="$temp"
-    
+
     # Update max
     if [ $temp_int -gt $MAX_TEMP ]; then
         MAX_TEMP=$temp_int
     fi
-    
+
     # Add to average calculation
     AVG_TEMP=$(awk "BEGIN {printf \"%.1f\", $AVG_TEMP + $temp}")
     CORE_COUNT=$((CORE_COUNT + 1))
-    
+
     # Add to display data
     if [ -n "$TEMP_DATA" ]; then
         TEMP_DATA="${TEMP_DATA}\n"
@@ -58,7 +58,7 @@ add_temp() {
 if command -v sensors >/dev/null 2>&1; then
     # First, try to get individual core temperatures
     CORE_TEMP_LINES=$(sensors 2>/dev/null | grep -E "Core [0-9]+" | grep -E "°C")
-    
+
     if [ -n "$CORE_TEMP_LINES" ]; then
         # We have individual core temps
         while IFS= read -r line; do
@@ -71,7 +71,7 @@ if command -v sensors >/dev/null 2>&1; then
     else
         # No individual cores, get any CPU temperatures (Tdie, Tctl, etc.)
         TEMP_LINES=$(sensors 2>/dev/null | grep -E "(Tdie|Tctl)" | grep -E "°C")
-        
+
         if [ -n "$TEMP_LINES" ]; then
             while IFS= read -r line; do
                 TEMP=$(echo "$line" | grep -oE '[0-9]+\.[0-9]+°C' | head -1 | sed 's/°C//')
@@ -91,10 +91,10 @@ for hwmon in /sys/class/hwmon/hwmon*/temp*_input; do
         TEMP_MILLI=$(cat "$hwmon" 2>/dev/null)
         if [ -n "$TEMP_MILLI" ] && [ "$TEMP_MILLI" -gt 20000 ] && [ "$TEMP_MILLI" -lt 150000 ]; then
             TEMP=$(awk "BEGIN {printf \"%.1f\", $TEMP_MILLI/1000}")
-            
+
             # Get device name
             HWMON_NAME=$(cat "${hwmon%/*}/name" 2>/dev/null)
-            
+
             # Get label
             LABEL_FILE="${hwmon%_input}_label"
             if [ -f "$LABEL_FILE" ]; then
@@ -111,7 +111,7 @@ for hwmon in /sys/class/hwmon/hwmon*/temp*_input; do
                     LABEL="Temp ${TEMP_NUM}"
                 fi
             fi
-            
+
             # Add CPU-related temps (k10temp, acpitz) but exclude GPU
             if echo "$HWMON_NAME" | grep -qiE "(k10|amd|cpu|acpitz)"; then
                 # Skip GPU temps
@@ -137,7 +137,7 @@ for zone in /sys/class/thermal/thermal_zone*/temp; do
             TEMP=$(awk "BEGIN {printf \"%.1f\", $TEMP_MILLI/1000}")
             ZONE_NAME=$(cat "${zone%/temp}/type" 2>/dev/null)
             ZONE_NUM=$(echo "$zone" | grep -oE 'thermal_zone[0-9]+' | grep -oE '[0-9]+')
-            
+
             # Only add CPU-related thermal zones
             if [ -n "$ZONE_NAME" ] && echo "$ZONE_NAME" | grep -qiE "(cpu|x86|acpitz|k10)"; then
                 add_temp "$ZONE_NAME" "$TEMP"
@@ -170,13 +170,13 @@ fi
 if [ $CORE_COUNT -gt 0 ]; then
     # Get CPU core count
     CPU_CORES=$(nproc 2>/dev/null || echo "?")
-    
+
     # Check if we have individual cores or just aggregate temps
     HAS_INDIVIDUAL_CORES=false
     if echo "$TEMP_DATA" | grep -qiE "Core [0-9]"; then
         HAS_INDIVIDUAL_CORES=true
     fi
-    
+
     if [ "$HAS_INDIVIDUAL_CORES" = true ]; then
         TOOLTIP_TEXT="CPU Temperature (${CPU_CORES} cores)
 Average: ${AVG_TEMP}°C

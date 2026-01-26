@@ -179,6 +179,7 @@
 			"car": "",
 			"default": ["", ""]
 		},
+		"on-click-right": "~/.config/waybar/default_io.sh -o",
 		"on-click": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
 		"tooltip": true,
 		"scroll-step": 3
@@ -193,6 +194,8 @@
 		"on-scroll-down": "pactl set-source-volume @DEFAULT_SOURCE@ -2%",
 		"max-volume": "100",
 		"on-click": "pactl set-source-mute @DEFAULT_SOURCE@ toggle",
+		"on-click-right": "~/.config/waybar/default_io.sh -i",
+		"on-click-middle": "~/.config/waybar/toggle_loopbackmic.sh",
 		"tooltip-format": "{source_desc}"
 	},
 

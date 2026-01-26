@@ -30,10 +30,10 @@ if [ "$UPDATE_CACHE" = true ]; then
         # Use find to locate large files (>100MB) and collect all results first
         # This avoids broken pipe issues by collecting before sorting
         TEMP_FILE=$(mktemp "$CACHE_DIR/waybar_disk_temp.XXXXXX" 2>/dev/null || echo "$CACHE_DIR/waybar_disk_temp.$$")
-        
+
         # Find large files and collect all results into temp file first
         find /home /tmp /var/log /opt -type f -size +100M 2>/dev/null -exec du -h {} \; 2>/dev/null > "$TEMP_FILE" 2>/dev/null
-        
+
         # Now sort the collected results (no pipe, so no broken pipe issues)
         if [ -s "$TEMP_FILE" ]; then
             sort -rh "$TEMP_FILE" 2>/dev/null | head -10 | awk '{
@@ -51,7 +51,7 @@ if [ "$UPDATE_CACHE" = true ]; then
                 printf "%-40s %8s\n", name, size
             }' > "$CACHE_FILE" 2>/dev/null
         fi
-        
+
         rm -f "$TEMP_FILE" 2>/dev/null
     ) &
 fi
