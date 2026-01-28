@@ -1,6 +1,7 @@
 #!/bin/sh
 
 title="_shell"
+
 if ! tmux list-panes -a -F '#{pane_title}' | grep -Fxq "$title"; then
   pane="$(tmux new-window -d -P -F '#{pane_id}' -n shell -c "$STUFF_DIR")"
   tmux set -pt "$pane" allow-set-title off
@@ -17,7 +18,12 @@ else
   path="$(tmux display-message -t "$here" -p -F '#{pane_current_path}')"
   p="$(tmux list-panes -a -F '#{pane_id} #{pane_title}' | awk -v t="$title" '$2==t{print $1; exit}')"
   shellpath="$(tmux display-message -t "$p" -p -F '#{pane_current_path}')"
+
   tmux join-pane -h -s "$p"
-  [ "$shellpath" = "$path" ] || tmux send-keys -t "$p" " cd -- '$path'; ls -lh" C-m
+
+  if tmux display-message -t "$p" -p '#{pane_current_command}' | grep -Fxq bash; then
+    [ "$shellpath" = "$path" ] || \
+      tmux send-keys -t "$p" " cd -- '$path'; ls -lh" C-m
+  fi
 fi
 
