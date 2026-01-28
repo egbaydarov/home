@@ -13,6 +13,7 @@ return {
         default_file_explorer = true,
         columns = {
           "icon",
+          "permissions",
         },
         -- Buffer-local options to use for oil buffers
         buf_options = {
@@ -31,7 +32,7 @@ return {
           concealcursor = "nvic",
         },
         -- Send deleted files to the trash instead of permanently deleting them (:help oil-trash)
-        delete_to_trash = false,
+        delete_to_trash = true,
         -- Skip the confirmation popup for simple operations (:help oil.skip_confirm_for_simple_edits)
         skip_confirm_for_simple_edits = false,
         -- Selecting a new/moved/renamed file or directory will prompt you to save changes first
@@ -72,7 +73,7 @@ return {
           ["<C-l>"] = "actions.refresh",
           ["-"] = { "actions.parent", mode = "n" },
           ["_"] = { "actions.open_cwd", mode = "n" },
-          ["`"] = { "actions.cd", mode = "n" },
+          ["<leader>."] = { "actions.cd", mode = "n" },
           ["~"] = { "actions.cd", opts = { scope = "tab" }, mode = "n" },
           ["gs"] = { "actions.change_sort", mode = "n" },
           ["gx"] = "actions.open_external",
