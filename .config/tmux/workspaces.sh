@@ -40,16 +40,16 @@ ensure_split_layout() {
   fi
 }
 
-ensure_split_layout "f1"    "$STUFF_DIR"
-ensure_window       "f2"    "$CFG_DIR"
-ensure_window       "f3"    "$CFG_DIR"
-ensure_window       "f4"    "$HOME_DIR"
-ensure_window       "f5"    "$STUFF_DIR"
-ensure_split_layout "f6"    "$STUFF_DIR"
-ensure_window       "f7"    "$STUFF_DIR"
-ensure_window       "f8"    "$STUFF_DIR"
-ensure_window       "f9"    "$STUFF_DIR"
-ensure_window       "f0"    "$STUFF_DIR"
+ensure_window "f1" "$STUFF_DIR"
+ensure_window "f2" "$CFG_DIR"
+ensure_window "f3" "$CFG_DIR"
+ensure_window "f4" "$HOME_DIR"
+ensure_window "f5" "$STUFF_DIR"
+ensure_window "f6" "$STUFF_DIR"
+ensure_window "f7" "$STUFF_DIR"
+ensure_window "f8" "$STUFF_DIR"
+ensure_window "f9" "$STUFF_DIR"
+ensure_window "f0" "$STUFF_DIR"
 
 # Go to f1
 tmux select-window -t "$SESSION":0

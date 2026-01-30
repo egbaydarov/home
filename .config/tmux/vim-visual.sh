@@ -33,8 +33,7 @@ WINDOW_ID="$(tmux new-window -P -d "$VIM_COMMAND -R \
   -c 'syntax match TmuxPrompt /^\[[^]]\+\][#$]/' \
   -c 'hi def link TmuxPrompt Special' \
   -c 'nnoremap <silent><buffer> q :quit<CR>' \
-  -c 'set nomodifiable noshowcmd noruler noshowmode cmdheight=0' \
-  -c 'setlocal statusline=%=%#StatusLine#\\ COPY\\ MODE\\ %=' \
+  -c 'set nomodifiable noshowcmd noruler noshowmode cmdheight=0 laststatus=0' \
   -c \"if $IS_VIM |
         set number norelativenumber signcolumn=yes foldcolumn=0 |
       else |

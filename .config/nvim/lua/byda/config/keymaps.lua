@@ -1,5 +1,12 @@
 local map = vim.keymap.set
 
+vim.opt.langmap = {
+  -- Uppercase (Shifted)
+  [[ЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ\,Ё;QWERTYUIOP{}ASDFGHJKL:"ZXCVBNM<>?~]],
+  -- Lowercase
+  [[йцукенгшщзхъфывапролджэячсмитьбю.ё;qwertyuiop[]asdfghjkl;'zxcvbnm\,./`]],
+}
+
 map("n", "-", "<cmd>Oil<cr>", { desc = "open parent directory"})
 
 map("n", "<leader>/", function()

@@ -28,18 +28,17 @@ if [ -f "$CURRENT" ]; then
   OPEN_CMD="edit $CURRENT"
   WINDOW_ID="$(tmux new-window -P -d "$VIM_COMMAND" \
     -c 'syntax on' \
-    -c 'set noshowcmd noruler noshowmode cmdheight=0' \
-    -c 'setlocal statusline=%=%#StatusLine#\ JUST\ A\ TOOL\ %=' \
+    -c 'set noshowcmd noruler noshowmode cmdheight=0 laststatus=0' \
     -c "$OPEN_CMD" \
     -c 'set wrap' \
     -c 'set filetype=markdown' \
   )"
+
 else
   OPEN_CMD="lua require('oil').open(vim.fn.expand('$DIR'), { sort = { { 'mtime', 'desc' } } })"
   WINDOW_ID="$(tmux new-window -P -d "$VIM_COMMAND" \
     -c 'syntax on' \
-    -c 'set noshowcmd noruler noshowmode cmdheight=0' \
-    -c 'setlocal statusline=%=%#StatusLine#\ JUST\ A\ TOOL\ %=' \
+    -c 'set noshowcmd noruler noshowmode cmdheight=0 laststatus=0' \
     -c "$OPEN_CMD" \
     -c 'set wrap' \
   )"
