@@ -91,8 +91,8 @@ function M.run_llm()
   -- Add user prompt
   full_prompt = full_prompt .. "<user>\n" .. user_prompt .. "\n</user>\n"
 
-  -- Add separator and open assistant tag
-  vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, { "", "<assistant>" })
+  -- Add separator and open assistant tag with blank line after
+  vim.api.nvim_buf_set_lines(bufnr, -1, -1, false, { "", "<assistant>", "" })
 
   -- Add spinner placeholder
   local spinner_line_num = vim.api.nvim_buf_line_count(bufnr)
@@ -424,24 +424,38 @@ local function setup_llm_view(bufnr)
   -- Clear existing signs for this buffer
   vim.fn.sign_unplace("llm_tags", { buffer = bufnr })
 
-  -- Set up concealment for tags - conceal entire line
+  -- Set up concealment for tags and markdown syntax
   vim.api.nvim_buf_call(bufnr, function()
-    vim.opt_local.conceallevel = 3     -- Completely hide concealed text
-    vim.opt_local.concealcursor = "nvic" -- Keep concealed even when cursor is on the line
+    -- Set filetype to markdown for TreeSitter highlighting
+    vim.bo[bufnr].filetype = "markdown"
 
-    -- Clear any existing syntax and set up fresh
-    vim.cmd("syntax clear")
+    -- Ensure TreeSitter is attached
+    local ts_available, ts_highlight = pcall(require, "nvim-treesitter.highlight")
+    if ts_available then
+      ts_highlight.attach(bufnr, "markdown")
+    end
 
-    -- Conceal the ENTIRE tag lines (including the whole line)
-    vim.cmd([[syntax match LLMTagConceal '^\s*<system>\s*$' conceal]])
-    vim.cmd([[syntax match LLMTagConceal '^\s*</system>\s*$' conceal]])
-    vim.cmd([[syntax match LLMTagConceal '^\s*<context>\s*$' conceal]])
-    vim.cmd([[syntax match LLMTagConceal '^\s*</context>\s*$' conceal]])
-    vim.cmd([[syntax match LLMTagConceal '^\s*<user>\s*$' conceal]])
-    vim.cmd([[syntax match LLMTagConceal '^\s*</user>\s*$' conceal]])
-    vim.cmd([[syntax match LLMTagConceal '^\s*<assistant>\s*$' conceal]])
-    vim.cmd([[syntax match LLMTagConceal '^\s*</assistant>\s*$' conceal]])
+    vim.opt_local.conceallevel = 2     -- Show replacement char for concealed text (less aggressive)
+    vim.opt_local.concealcursor = "nc"  -- Conceal in normal and command mode only
+    
+    -- Disable spell checking completely
+    vim.opt_local.spell = false
   end)
+
+  -- Apply concealment after a short delay to ensure syntax is loaded
+  vim.defer_fn(function()
+    vim.api.nvim_buf_call(bufnr, function()
+      -- Conceal the ENTIRE tag lines (including the whole line)
+      vim.cmd([[syntax match LLMTagConceal '^\s*<system>\s*$' conceal]])
+      vim.cmd([[syntax match LLMTagConceal '^\s*</system>\s*$' conceal]])
+      vim.cmd([[syntax match LLMTagConceal '^\s*<context>\s*$' conceal]])
+      vim.cmd([[syntax match LLMTagConceal '^\s*</context>\s*$' conceal]])
+      vim.cmd([[syntax match LLMTagConceal '^\s*<user>\s*$' conceal]])
+      vim.cmd([[syntax match LLMTagConceal '^\s*</user>\s*$' conceal]])
+      vim.cmd([[syntax match LLMTagConceal '^\s*<assistant>\s*$' conceal]])
+      vim.cmd([[syntax match LLMTagConceal '^\s*</assistant>\s*$' conceal]])
+    end)
+  end, 100)
 
   -- Use Solarized Light colors for horizontal lines (matching signs)
   vim.cmd("hi LLMSystemLine guifg=#268bd2 ctermfg=33")      -- Solarized Blue
@@ -636,7 +650,7 @@ function M.setup(opts)
   end
 
   -- Setup autocommand to apply signs and lines to CURRENT file
-  vim.api.nvim_create_autocmd({"BufRead", "BufWritePost", "WinResized", "VimResized"}, {
+  vim.api.nvim_create_autocmd({"BufRead", "BufEnter", "BufWritePost", "WinResized", "VimResized"}, {
     pattern = "*/justatool/CURRENT",
     callback = function(ev)
       -- Double-check this is our CURRENT file
