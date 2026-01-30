@@ -23,20 +23,27 @@ if [ -n "$WIN_INFO" ]; then
   exit 0
 fi
 
-# Decide what to open
+# Decide what to open and create window
 if [ -f "$CURRENT" ]; then
   OPEN_CMD="edit $CURRENT"
+  WINDOW_ID="$(tmux new-window -P -d "$VIM_COMMAND" \
+    -c 'syntax on' \
+    -c 'set noshowcmd noruler noshowmode cmdheight=0' \
+    -c 'setlocal statusline=%=%#StatusLine#\ JUST\ A\ TOOL\ %=' \
+    -c "$OPEN_CMD" \
+    -c 'set wrap' \
+    -c 'set filetype=xml' \
+  )"
 else
   OPEN_CMD="lua require('oil').open(vim.fn.expand('$DIR'), { sort = { { 'mtime', 'desc' } } })"
+  WINDOW_ID="$(tmux new-window -P -d "$VIM_COMMAND" \
+    -c 'syntax on' \
+    -c 'set noshowcmd noruler noshowmode cmdheight=0' \
+    -c 'setlocal statusline=%=%#StatusLine#\ JUST\ A\ TOOL\ %=' \
+    -c "$OPEN_CMD" \
+    -c 'set wrap' \
+  )"
 fi
-
-# Create window
-WINDOW_ID="$(tmux new-window -P -d "$VIM_COMMAND" \
-  -c 'syntax on' \
-  -c 'set noshowcmd noruler noshowmode cmdheight=0' \
-  -c 'setlocal statusline=%=%#StatusLine#\ JUST\ A\ TOOL\ %=' \
-  -c "$OPEN_CMD"
-)"
 
 tmux rename-window -t "$WINDOW_ID" "$WIN_NAME"
 tmux select-window -t "$WINDOW_ID"
