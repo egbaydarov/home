@@ -32,7 +32,7 @@ if [ -f "$CURRENT" ]; then
     -c 'setlocal statusline=%=%#StatusLine#\ JUST\ A\ TOOL\ %=' \
     -c "$OPEN_CMD" \
     -c 'set wrap' \
-    -c 'set filetype=xml' \
+    -c 'set filetype=markdown' \
   )"
 else
   OPEN_CMD="lua require('oil').open(vim.fn.expand('$DIR'), { sort = { { 'mtime', 'desc' } } })"
