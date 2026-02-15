@@ -30,12 +30,11 @@ return {
           "--clang-tidy",
           "--completion-style=detailed",
           "--header-insertion=iwyu",
-          "--query-driver=/nix/store/*mingw*/bin/x86_64-w64-mingw32-*"
+          "--query-driver=/nix/store/*/bin/*"
         }
         vim.lsp.config("clangd", {
           cmd = cmd
         })
-
 
         vim.lsp.enable("gopls", true)
         vim.lsp.config("gopls",{
