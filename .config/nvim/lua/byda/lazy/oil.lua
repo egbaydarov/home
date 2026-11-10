@@ -10,6 +10,41 @@ return {
     config = function ()
       local oil = require("oil")
 
+      -- Shell-like split: whitespace separates, '...' and "..." group, \ escapes
+      local function split_args(input)
+        local args, cur, quote, has = {}, {}, nil, false
+        local i = 1
+        while i <= #input do
+          local c = input:sub(i, i)
+          if quote then
+            if c == quote then
+              quote = nil
+            elseif c == "\\" and quote == '"' and i < #input then
+              i = i + 1
+              cur[#cur + 1] = input:sub(i, i)
+            else
+              cur[#cur + 1] = c
+            end
+          elseif c == "'" or c == '"' then
+            quote, has = c, true
+          elseif c == "\\" and i < #input then
+            i = i + 1
+            cur[#cur + 1], has = input:sub(i, i), true
+          elseif c:match("%s") then
+            if has then
+              args[#args + 1], cur, has = table.concat(cur), {}, false
+            end
+          else
+            cur[#cur + 1], has = c, true
+          end
+          i = i + 1
+        end
+        if has then
+          args[#args + 1] = table.concat(cur)
+        end
+        return args
+      end
+
       -- Open the executable under the cursor in RAD Debugger (C, Go, .NET NativeAOT)
       local function rad_debug(ask_args)
         local entry = oil.get_cursor_entry()
@@ -29,7 +64,7 @@ return {
         if ask_args then
           vim.ui.input({ prompt = "raddbg args: " }, function(input)
             if input then
-              launch(vim.split(input, "%s+", { trimempty = true }))
+              launch(split_args(input))
             end
           end)
         else

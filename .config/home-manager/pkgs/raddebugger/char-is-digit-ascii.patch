@@ -1,0 +1,11 @@
+--- a/src/base/base_strings.c	2026-11-10 20:41:16.832971709 +0100
++++ b/src/base/base_strings.c	2026-11-10 20:41:16.843971928 +0100
+@@ -46,7 +46,7 @@
+ char_is_digit(U8 c, U32 base)
+ {
+   B32 result = 0;
+-  if(0 < base && base <= 16)
++  if(0 < base && base <= 16 && c < 0x80)
+   {
+     U8 val = integer_symbol_reverse[c];
+     if(val < base)

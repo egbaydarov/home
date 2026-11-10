@@ -1,0 +1,15 @@
+--- a/src/linux/demon/linux_demon.c	2026-11-10 19:32:30.900919186 +0100
++++ b/src/linux/demon/linux_demon.c	2026-11-10 19:32:30.924718387 +0100
+@@ -2155,9 +2155,10 @@
+               //
+               case PTRACE_EVENT_CLONE:
+               {
+-                pid_t new_tid = 0;
+-                if(LNX_RETRY_ON_EINTR(ptrace(PTRACE_GETEVENTMSG, wait_id, 0, &new_tid)) >= 0)
++                unsigned long new_tid_msg = 0;
++                if(LNX_RETRY_ON_EINTR(ptrace(PTRACE_GETEVENTMSG, wait_id, 0, &new_tid_msg)) >= 0)
+                 {
++                  pid_t new_tid = (pid_t)new_tid_msg;
+                   // rjf: first, check if we have already seen a stop event for this TID. if so,
+                   // remove from pre-clone stop thread ID List.
+                   B32 already_stopped = 0;

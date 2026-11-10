@@ -1,0 +1,37 @@
+--- a/src/base/base_strings.c	2026-11-10 20:39:14.941540844 +0100
++++ b/src/base/base_strings.c	2026-11-10 20:39:14.943540884 +0100
+@@ -1624,6 +1624,7 @@
+   };
+   String8MetaNode *stack = 0;
+   String8MetaNode *free_meta_node = 0;
++  String8Node *last_unstacked = 0;
+   String8Node *first = path->first;
+   MemoryZeroStruct(path);
+   for(String8Node *node = first, *next = 0;
+@@ -1677,6 +1678,7 @@
+     save_without_stack:
+     {
+       str8_list_push_node(path, node);
++      last_unstacked = node;
+       continue;
+     }
+     
+@@ -1685,13 +1687,15 @@
+       path->node_count -= 1;
+       path->total_size -= stack->node->string.size;
+       SLLStackPop(stack);
+-      if(stack == 0)
++      // stacked nodes are always the tail of the list, so this drops its last node
++      path->last = (stack != 0 ? stack->node : last_unstacked);
++      if(path->last == 0)
+       {
+-        path->last = path->first;
++        path->first = 0;
+       }
+       else
+       {
+-        path->last = stack->node;
++        path->last->next = 0;
+       }
+       continue;
+     }

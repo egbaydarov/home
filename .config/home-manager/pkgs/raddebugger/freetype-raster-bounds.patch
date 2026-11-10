@@ -1,0 +1,27 @@
+--- a/src/font_provider/freetype/font_provider_freetype.c	2026-11-10 20:39:05.554353341 +0100
++++ b/src/font_provider/freetype/font_provider_freetype.c	2026-11-10 20:39:05.579754510 +0100
+@@ -106,8 +106,8 @@
+     }
+     
+     //- rjf: allocate & fill atlas w/ rasterization
+-    Vec2S16 dim = {(S16)total_width+1, height+1};
+-    U64 atlas_size = dim.x * dim.y * 4;
++    Vec2S16 dim = {(S16)(Min(total_width, max_S16-1)+1), (S16)(Min(height, max_S16-1)+1)};
++    U64 atlas_size = (U64)dim.x * dim.y * 4;
+     U8 *atlas = push_array(arena, U8, atlas_size);
+     S32 baseline = ascent;
+     S32 atlas_write_x = 0;
+@@ -123,9 +123,11 @@
+         for(S32 col = 0; col < (S32)bmp->width; col += 1)
+         {
+           S32 x = atlas_write_x + left + col;
+-          U64 off = (y*dim.x + x)*4;
+-          if(off+4 <= atlas_size)
++          // glyphs may overhang the atlas (negative bitmap_left, tall ascenders):
++          // check signed coordinates, since a negative offset wraps past the size check
++          if(0 <= x && x < dim.x && 0 <= y && y < dim.y)
+           {
++            U64 off = ((U64)y*dim.x + x)*4;
+             atlas[off+0] = 255;
+             atlas[off+1] = 255;
+             atlas[off+2] = 255;

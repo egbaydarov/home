@@ -1,0 +1,92 @@
+--- a/src/dwarf/dwarf_parse.h	2026-11-10 19:40:28.217825774 +0100
++++ b/src/dwarf/dwarf_parse.h	2026-11-10 19:40:28.243907310 +0100
+@@ -106,6 +106,7 @@
+   U64 entries_count;
+   B32 entries_are_addrs;
+   void *entries;
++  U64 entries_off;
+ };
+ 
+ typedef struct DW2_OffsetTableNode DW2_OffsetTableNode;
+@@ -165,6 +166,10 @@
+   DW2_OffsetTable *str_offsets_table;
+   DW2_OffsetTable *addr_table;
+   DW2_OffsetTable *loclists_table;
++  DW2_OffsetTable rnglists_table_rebased;
++  DW2_OffsetTable str_offsets_table_rebased;
++  DW2_OffsetTable addr_table_rebased;
++  DW2_OffsetTable loclists_table_rebased;
+   String8 unit_dir;
+   String8 unit_file;
+   DW_Language language;
+--- a/src/dwarf/dwarf_parse.c	2026-11-10 19:40:28.222825866 +0100
++++ b/src/dwarf/dwarf_parse.c	2026-11-10 19:40:28.244565290 +0100
+@@ -672,6 +672,24 @@
+   ctx_out->abbrev_map = map->map_from_unit_idx_table[unit_idx];
+ }
+ 
++// Some producers (e.g. Go) emit one table shared by all units; a unit's base
++// attribute then points into the middle of it rather than at its first entry,
++// and indices are relative to that base.
++internal DW2_OffsetTable *
++dw2_offset_table_rebased(DW2_OffsetTable *dst, DW2_OffsetTable *src, U64 base_off)
++{
++  U64 skip = 0;
++  if(base_off > src->entries_off && src->entry_size != 0)
++  {
++    skip = Min((base_off - src->entries_off) / src->entry_size, src->entries_count);
++  }
++  *dst = *src;
++  dst->entries        = (U8 *)src->entries + skip*src->entry_size;
++  dst->entries_count -= skip;
++  dst->entries_off   += skip*src->entry_size;
++  return dst;
++}
++
+ internal void
+ dw2_parse_ctx_equip_unit_root_tag(DW2_ParseCtx *ctx_out, DW2_Tag *tag, DW2_OffsetTableSet *offset_tables)
+ {
+@@ -721,7 +739,7 @@
+       if(0 < rnglists_table_num && rnglists_table_num <= rnglists_tables_ranges_array.count)
+       {
+         DW2_OffsetTable *table = &offset_tables->rnglists_tables[rnglists_table_num-1];
+-        ctx_out->rnglists_table = table;
++        ctx_out->rnglists_table = dw2_offset_table_rebased(&ctx_out->rnglists_table_rebased, table, rnglists_base_off);
+       }
+     }
+     
+@@ -732,7 +750,7 @@
+       if(0 < str_offsets_table_num && str_offsets_table_num <= str_offsets_tables_ranges_array.count)
+       {
+         DW2_OffsetTable *table = &offset_tables->str_offsets_tables[str_offsets_table_num-1];
+-        ctx_out->str_offsets_table = table;
++        ctx_out->str_offsets_table = dw2_offset_table_rebased(&ctx_out->str_offsets_table_rebased, table, str_offsets_base_off);
+       }
+     }
+     
+@@ -743,7 +761,7 @@
+       if(0 < addr_table_num && addr_table_num <= addr_tables_ranges_array.count)
+       {
+         DW2_OffsetTable *table = &offset_tables->addr_tables[addr_table_num-1];
+-        ctx_out->addr_table = table;
++        ctx_out->addr_table = dw2_offset_table_rebased(&ctx_out->addr_table_rebased, table, addr_base_off);
+       }
+     }
+     
+@@ -754,7 +772,7 @@
+       if(0 < loclist_table_num && loclist_table_num <= loclist_tables_ranges_array.count)
+       {
+         DW2_OffsetTable *table = &offset_tables->loclists_tables[loclist_table_num-1];
+-        ctx_out->loclists_table = table;
++        ctx_out->loclists_table = dw2_offset_table_rebased(&ctx_out->loclists_table_rebased, table, loclist_base_off);
+       }
+     }
+   }
+@@ -1267,6 +1285,7 @@
+       out->entries_count         = entry_count;
+       out->entries_are_addrs     = (!offset_count_entry && addr_size != 0);
+       out->entries               = data.str + off;
++      out->entries_off           = off;
+       
+       // rjf: skip table
+       off = unit_data_off_opl;

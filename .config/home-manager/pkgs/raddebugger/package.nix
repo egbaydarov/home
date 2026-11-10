@@ -56,6 +56,34 @@ clangStdenv.mkDerivation (finalAttrs: {
     # Name procedures whose DWARF definition only points at a declaration via
     # DW_AT_specification / DW_AT_abstract_origin (.NET NativeAOT, C++ methods).
     ./dwarf-specification-names.patch
+    # Show C# auto-property fields "<X>k__BackingField" as "X", so watch
+    # expressions on them parse.
+    ./csharp-backing-field-names.patch
+    # Absolute paths (/home/...) were treated as Windows-style /flags, so
+    # `raddbg /path/to/exe` silently got no target.
+    ./unix-absolute-target-path.patch
+    # Step-into at launch: stop at main.main (Go) / <Main>$, Main (C#) instead
+    # of the runtime's native `main`, which has no source; and stop after the
+    # prologue (first statement) so locals and the call stack are valid.
+    ./language-entry-points.patch
+    # PTRACE_GETEVENTMSG writes an unsigned long into a 4-byte pid_t, smashing
+    # the stack on every thread creation (crashes on Go / .NET programs).
+    ./ptrace-geteventmsg-overflow.patch
+    # DWARF 5 units sharing one .debug_addr (Go): honor DW_AT_addr_base inside
+    # the table, otherwise every unit resolves the first unit's addresses.
+    ./dwarf5-shared-offset-tables.patch
+    # Target arguments kept their quote characters in argv ("hello world"
+    # arrived with the quotes); split them like a shell on Linux.
+    ./posix-target-arguments.patch
+    # The FreeType rasterizer's bounds check ran on a wrapped unsigned offset, so
+    # glyphs overhanging the atlas wrote 0xFF before it, corrupting unrelated
+    # memory ("Fatal Allocation Failure" when showing source).
+    ./freetype-raster-bounds.patch
+    # Resolving ".." left the removed path segment linked in the list, so joining
+    # it overflowed the output buffer.
+    ./path-resolve-dots-unlink.patch
+    # char_is_digit indexed a 128-entry table with any byte (UTF-8 in sources).
+    ./char-is-digit-ascii.patch
   ];
 
   postPatch = ''

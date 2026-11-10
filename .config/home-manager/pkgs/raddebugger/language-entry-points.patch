@@ -1,0 +1,87 @@
+--- a/src/dbg_engine/dbg_engine_ctrl.c	2026-11-10 21:00:07.746368330 +0100
++++ b/src/dbg_engine/dbg_engine_ctrl.c	2026-11-10 21:00:07.773524225 +0100
+@@ -5713,6 +5713,38 @@
+   ProfEnd();
+ }
+ 
++//- entry traps: skip the prologue. The first line row of a function covers its
++// opening line and the frame setup, so locals read garbage there; stop at the
++// first row on another line instead (falls back to the function start).
++internal U64
++d_post_prologue_voff_from_procedure(RDI_Parsed *rdi, RDI_Symbol *procedure)
++{
++  U64 first = rdi_first_voff_from_procedure(rdi, procedure);
++  U64 opl = rdi_opl_voff_from_procedure(rdi, procedure);
++  U64 result = first;
++  if(first != 0)
++  {
++    RDI_Unit *unit = rdi_unit_from_voff(rdi, first);
++    RDI_LineTable *line_table = rdi_line_table_from_unit(rdi, unit);
++    RDI_ParsedLineTable lines = {0};
++    rdi_parsed_from_line_table(rdi, line_table, &lines);
++    U64 idx = rdi_line_info_idx_from_voff(&lines, first);
++    if(idx < lines.count)
++    {
++      U32 first_line_num = lines.lines[idx].line_num;
++      for(U64 i = idx + 1; i < lines.count && lines.voffs[i] < opl; i += 1)
++      {
++        if(lines.lines[i].line_num != 0 && lines.lines[i].line_num != first_line_num)
++        {
++          result = lines.voffs[i];
++          break;
++        }
++      }
++    }
++  }
++  return result;
++}
++
+ internal void
+ d_ctrl_thread__run(DMN_CtrlCtx *ctrl_ctx, D_Msg *msg)
+ {
+@@ -6345,6 +6377,36 @@
+           }
+         }
+         
++        //- add trap for the first language-level entry point found: these run after
++        // a native `main` in the runtime (Go, .NET NativeAOT), which has no source
++        if(!entries_found)
++        {
++          String8 lang_entry_points[] =
++          {
++            str8_lit("main.main"),
++            str8_lit("<Main>$"),
++            str8_lit("Main"),
++          };
++          for(U64 idx = 0; idx < ArrayCount(lang_entry_points) && !entries_found; idx += 1)
++          {
++            String8 name = lang_entry_points[idx];
++            RDI_NameMapNode *node = rdi_name_map_lookup(rdi, &map, name.str, name.size);
++            U32 id_count = 0;
++            U32 *ids = rdi_matches_from_map_node(rdi, node, &id_count);
++            if(id_count > 0)
++            {
++              RDI_Symbol *procedure = rdi_element_from_name_idx(rdi, Procedures, ids[0]);
++              U64 voff = d_post_prologue_voff_from_procedure(rdi, procedure);
++              if(voff != 0)
++              {
++                entries_found = 1;
++                DMN_Trap trap = {d_dmn_from_handle(process->handle), module_base_vaddr + voff};
++                dmn_trap_chunk_list_push(scratch.arena, &entry_traps, 256, &trap);
++              }
++            }
++          }
++        }
++        
+         //- rjf: add traps for all high-level entry points
+         if(!entries_found)
+         {
+@@ -6369,7 +6431,7 @@
+               }
+             }
+             RDI_Symbol *procedure = rdi_element_from_name_idx(rdi, Procedures, procedure_id);
+-            U64 voff = rdi_first_voff_from_procedure(rdi, procedure);
++            U64 voff = d_post_prologue_voff_from_procedure(rdi, procedure);
+             if(voff != 0)
+             {
+               entries_found = 1;

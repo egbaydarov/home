@@ -1,6 +1,7 @@
 #!/bin/sh
 # Usage: popup_shell.sh popup|split <client> <session> <window_id> <path>
 #        popup_shell.sh goto <client> <session> <window_id> <path> <index>
+#        popup_shell.sh visit <session> <window_id>   (session-window-changed hook)
 # Persistent per-window shell, shown either in a popup (kept in its own
 # "popup_<window>" session) or joined into the window as a split.
 # Failed runs are traced to ~/.cache/tmux-popup-shell.log.
@@ -14,6 +15,15 @@ set -x
 # Key presses run concurrently (run-shell -b); serialize them.
 exec 9>"${XDG_RUNTIME_DIR:-/tmp}/tmux-popup-shell.lock"
 flock 9
+
+# Reopen the popup of a window that was left (via goto) with its popup open
+if [ "$1" = visit ]; then
+  case "$2" in popup_*) exit 0 ;; esac
+  [ "$(tmux show -wqv -t "$3" @popup_open)" = 1 ] || exit 0
+  set -- popup "$(tmux list-clients -t "=$2:" -F '#{client_name}' | head -1)" "$2" "$3" \
+    "$(tmux display-message -p -t "$3" '#{pane_current_path}')"
+  [ -n "$2" ] || exit 0
+fi
 
 mode="$1" client="$2" path="$5"
 case "$3" in
@@ -64,10 +74,12 @@ pane="$(shell_pane)"
 case "$mode" in
   goto)
     outer="$(tmux display-message -p -t "$win" '#{session_name}')"
+    tmux set -w -t "$win" @popup_open 1
     tmux detach-client -t "$client"
     tmux select-window -t "=$outer:$6" || true
     ;;
   split)
+    tmux set -wu -t "$win" @popup_open
     if [ -z "$pane" ]; then
       mark "$(tmux split-window -h -t "$win" -c "$path" -P -F '#{pane_id}')"
     elif parked "$pane"; then
@@ -77,6 +89,7 @@ case "$mode" in
     fi
     ;;
   popup)
+    tmux set -wu -t "$win" @popup_open
     if [ -z "$pane" ]; then
       new_session
       mark "$(tmux display-message -p -t "=$session:" '#{pane_id}')"
@@ -84,7 +97,8 @@ case "$mode" in
       park "$pane"
     fi
     flock -u 9
-    tmux display-popup -c "$client" -E -w 90% -h 90% "unset TMUX; tmux attach -t '=$session:'" || true
+    sock="${TMUX%%,*}"
+    tmux display-popup -c "$client" -E -w 90% -h 90% "unset TMUX; tmux ${sock:+-S '$sock'} attach -t '=$session:'" || true
     ;;
 # Exit on this line: the script stays running while the popup is open, and
 # sh would otherwise resume reading the (possibly edited) file afterwards.

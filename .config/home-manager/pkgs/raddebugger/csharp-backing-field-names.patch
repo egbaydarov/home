@@ -1,0 +1,13 @@
+--- a/src/rdi_from_dwarf/rdi_from_dwarf.c	2026-11-10 19:11:02.085198414 +0100
++++ b/src/rdi_from_dwarf/rdi_from_dwarf.c	2026-11-10 19:11:02.098701203 +0100
+@@ -2825,6 +2825,10 @@
+               RDIM_UDTMember *member = rdim_udt_push_member(arena, &lane_udts, udt);
+               member->kind = RDI_MemberKind_DataField;
+               member->name = name;
++              if(name.size > 1 && name.str[0] == '<' && str8_ends_with(name, str8_lit(">k__BackingField"), 0))
++              {
++                member->name = str8_substr(name, r1u64(1, name.size - str8_lit(">k__BackingField").size));
++              }
+               member->type = type;
+               member->off = (RDI_U32)off; // TODO(rjf): @u64_to_u32
+             }break;

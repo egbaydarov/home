@@ -32,7 +32,6 @@
       gs = "git status";
       v = "nvim";
       nd = "nix develop";
-      curb = "nohup cursor . > /dev/null 2>&1 &";
       "..." = "cd ../..";
       # ssh with keys only root can read, e.g. `sb root@<ip>`
       sb = "pkexec ssh -i /root/.ssh/id_rsa_byda";
