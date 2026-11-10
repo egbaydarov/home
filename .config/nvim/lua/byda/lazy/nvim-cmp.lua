@@ -29,16 +29,8 @@ return {
           { name = 'nvim_lsp' },
           { name = 'buffer' },
           { name = 'path' },
-          { name = 'easy-dotnet' },
           { name = "vim-dadbod-completion" },
         },
-      })
-
-      -- Enable LSP capabilities for nvim-cmp
-      local capabilities = require('cmp_nvim_lsp').default_capabilities()
-
-      vim.lsp.config('pyright', {
-        capabilities = capabilities
       })
     end,
   }}

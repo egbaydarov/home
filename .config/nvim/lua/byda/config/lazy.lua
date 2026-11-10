@@ -62,7 +62,6 @@ require("lazy").setup(
       {
         "lukas-reineke/indent-blankline.nvim",
         lazy = false,
-        event = "User FilePost",
         opts = {
           indent = { char = "│" },
           scope = { char = "│" },
@@ -171,7 +170,7 @@ require("lazy").setup(
         },
         ["<localleader>i"] = {
           function(plugin)
-            Util.notify(vim.inspect(plugin), {
+            require("lazy.util").notify(vim.inspect(plugin), {
               title = "Inspect " .. plugin.name,
               lang = "lua",
             })

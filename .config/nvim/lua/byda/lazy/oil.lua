@@ -9,6 +9,34 @@ return {
     lazy = false,
     config = function ()
       local oil = require("oil")
+
+      -- Open the executable under the cursor in RAD Debugger (C, Go, .NET NativeAOT)
+      local function rad_debug(ask_args)
+        local entry = oil.get_cursor_entry()
+        local dir = oil.get_current_dir()
+        if not entry or not dir or entry.type ~= "file" then
+          return vim.notify("raddbg: cursor is not on a file", vim.log.levels.WARN)
+        end
+        local path = dir .. entry.name
+        if vim.fn.executable(path) ~= 1 then
+          return vim.notify("raddbg: " .. entry.name .. " is not executable", vim.log.levels.WARN)
+        end
+        local function launch(args)
+          local cmd = { "raddbg", path }
+          vim.list_extend(cmd, args)
+          vim.system(cmd, { cwd = dir, detach = true, stdout = false, stderr = false })
+        end
+        if ask_args then
+          vim.ui.input({ prompt = "raddbg args: " }, function(input)
+            if input then
+              launch(vim.split(input, "%s+", { trimempty = true }))
+            end
+          end)
+        else
+          launch({})
+        end
+      end
+
       oil.setup({
         default_file_explorer = true,
         columns = {
@@ -79,6 +107,8 @@ return {
           ["gx"] = "actions.open_external",
           ["g."] = { "actions.toggle_hidden", mode = "n" },
           ["g\\"] = { "actions.toggle_trash", mode = "n" },
+          ["gd"] = { callback = function() rad_debug(false) end, desc = "Debug executable in RAD Debugger", mode = "n" },
+          ["gD"] = { callback = function() rad_debug(true) end, desc = "Debug executable in RAD Debugger (with args)", mode = "n" },
         },
         -- Set to false to disable all of the above keymaps
         use_default_keymaps = true,

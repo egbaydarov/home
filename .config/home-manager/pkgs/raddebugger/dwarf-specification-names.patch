@@ -1,0 +1,25 @@
+--- a/src/rdi_from_dwarf/rdi_from_dwarf.c	2026-11-10 18:36:40.155439607 +0100
++++ b/src/rdi_from_dwarf/rdi_from_dwarf.c	2026-11-10 18:36:40.178440106 +0100
+@@ -3158,6 +3158,22 @@
+           //
+           String8 name = name_attrib->val.string;
+           String8 link_name = linkname_attrib->val.string;
++          if(name.size == 0 && link_name.size == 0)
++          {
++            DW2_Attrib *origin_attrib = dw2_attrib_from_kind(&tag, DW_AttribKind_Specification);
++            if(origin_attrib == &dw2_attrib_nil)
++            {
++              origin_attrib = dw2_attrib_from_kind(&tag, DW_AttribKind_AbstractOrigin);
++            }
++            if(origin_attrib != &dw2_attrib_nil)
++            {
++              U64 origin_off = dw2_reference_info_off_from_form_val(unit_parse_ctx, &origin_attrib->val);
++              DW2_Tag origin_tag = {0};
++              dw2_read_tag(scratch2.arena, raw, unit_parse_ctx, raw->sec[DW_SectionKind_Info].data, origin_off, &origin_tag);
++              name = dw2_attrib_from_kind(&origin_tag, DW_AttribKind_Name)->val.string;
++              link_name = dw2_attrib_from_kind(&origin_tag, DW_AttribKind_LinkageName)->val.string;
++            }
++          }
+           DW_InlKind inl_kind = (DW_InlKind)inline_attrib->val.u128.u64[0];
+           B32 is_external = (external_attrib != &dw2_attrib_nil);
+           B32 is_decl = (decl_attrib != &dw2_attrib_nil);

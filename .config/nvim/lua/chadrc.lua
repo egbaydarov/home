@@ -58,9 +58,6 @@ local options = {
   cheatsheet = {
     enabled = false,
   },
-  mason = {
-    enanbled = false,
-  },
   colorify = {
     enabled = false,
   },

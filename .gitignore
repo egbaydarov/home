@@ -24,6 +24,10 @@
 !.config/waybar/*
 !.config/home-manager/
 !.config/home-manager/*
+!.config/home-manager/modules/
+!.config/home-manager/modules/*
+!.config/home-manager/pkgs/
+!.config/home-manager/pkgs/**
 !.config/wezterm/
 !.config/wezterm/*
 !.config/kitty/

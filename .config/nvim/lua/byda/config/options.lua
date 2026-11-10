@@ -30,7 +30,6 @@ vim.opt.listchars = {
   precedes = "<",  -- Indicates line continuation
   space = " "      -- Visible space character
 }
-opt.formatexpr = "v:lua.require'lazyvim.util'.format.formatexpr()"
 opt.formatoptions = "jcroqlnt" -- tcqj
 opt.grepformat = "%f:%l:%c:%m"
 opt.grepprg = "rg --vimgrep"

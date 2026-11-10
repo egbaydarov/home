@@ -1,11 +1,14 @@
 return {
   {
     "neovim/nvim-lspconfig",
+    dependencies = { "hrsh7th/cmp-nvim-lsp" },
     config = function()
+        vim.lsp.config("*", {
+          capabilities = require("cmp_nvim_lsp").default_capabilities(),
+        })
+
         vim.lsp.enable("lua_ls")
         vim.lsp.config("lua_ls", {
-          on_attach = on_attach,
-          capabilities = capabilities,
           settings = {
             Lua = {
               runtime = { version = "LuaJIT" },
@@ -38,8 +41,6 @@ return {
 
         vim.lsp.enable("gopls", true)
         vim.lsp.config("gopls",{
-           on_attach = on_attach,
-           capabilities = capabilities,
            settings = {
              gopls = {
                completeUnimported = true,
@@ -74,12 +75,11 @@ return {
   },
   {
     'stevearc/conform.nvim',
-    opts = {},
     config = function()
       require("conform").setup({
         formatters_by_ft = {
           lua = { "stylua" },
-          go = { "gofmt" },
+          go = { "goimports" },
           c = { "clang-format" },
           cpp = { "clang-format" },
           --python = { "isort", "black" },
