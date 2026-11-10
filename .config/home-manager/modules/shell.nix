@@ -36,6 +36,8 @@
       # ssh with keys only root can read, e.g. `sb root@<ip>`
       sb = "pkexec ssh -i /root/.ssh/id_rsa_byda";
       sm = "pkexec ssh -i /root/.ssh/oldmac";
+      gp = "GIT_SSH_COMMAND='pkexec ssh -i /root/.ssh/id_rsa_byda -o IdentitiesOnly=yes' git push";
+      gpl = "GIT_SSH_COMMAND='pkexec ssh -i /root/.ssh/id_rsa_byda -o IdentitiesOnly=yes' git pull";
       # path: keeps the flake to this directory instead of the whole ~ git repo
       hms = "home-manager switch --flake path:$HOME/.config/home-manager#byda";
     };
