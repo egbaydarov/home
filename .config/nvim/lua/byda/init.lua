@@ -4,7 +4,6 @@ require("byda.config.options")
 require("byda.config.autocmds")
 require("byda.config.keymaps")
 require("byda.config.lazy")
-require("byda.justatool").setup()
 local should_profile = os.getenv("NVIM_PROFILE")
 if should_profile then
   require("profile").instrument_autocmds()

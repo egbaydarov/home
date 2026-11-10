@@ -64,8 +64,8 @@ require("lazy").setup(
         lazy = false,
         event = "User FilePost",
         opts = {
-          indent = { char = "│", highlight = "IblChar" },
-          scope = { char = "│", highlight = "IblScopeChar" },
+          indent = { char = "│" },
+          scope = { char = "│" },
         },
         config = function(_, opts)
           dofile(vim.g.base46_cache .. "blankline")

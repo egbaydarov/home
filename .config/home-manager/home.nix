@@ -108,6 +108,7 @@
     #   echo "Hello, ${config.home.username}!"
     # '')
     pkgs.dbeaver-bin
+    pkgs.tree-sitter # nvim-treesitter (main) builds parsers with it
     #(import ./twitchalarm.nix { inherit pkgs; })
   ];
 
