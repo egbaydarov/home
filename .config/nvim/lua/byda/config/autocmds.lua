@@ -2,13 +2,28 @@ local function augroup(name)
   return vim.api.nvim_create_augroup("lazyvim_" .. name, { clear = true })
 end
 
--- Check if we need to reload the file when it changed
-vim.api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
-  group = augroup("checktime"),
+-- Check if we need to reload the file when it changed.
+-- CursorHold/BufEnter are what catch agents (claude, aider, ...) editing files
+-- from another shell while nvim keeps focus; FocusGained needs tmux
+-- "focus-events on" to ever fire.
+vim.api.nvim_create_autocmd(
+  { "FocusGained", "TermClose", "TermLeave", "BufEnter", "CursorHold", "CursorHoldI" },
+  {
+    group = augroup("checktime"),
+    callback = function()
+      -- checktime errors out while the cmdline is open
+      if vim.o.buftype ~= "nofile" and vim.fn.mode() ~= "c" then
+        vim.cmd("checktime")
+      end
+    end,
+  }
+)
+
+-- Tell me when a buffer got reloaded from disk under me
+vim.api.nvim_create_autocmd("FileChangedShellPost", {
+  group = augroup("file_changed_shell"),
   callback = function()
-    if vim.o.buftype ~= "nofile" then
-      vim.cmd("checktime")
-    end
+    vim.notify("File changed on disk, buffer reloaded", vim.log.levels.WARN)
   end,
 })
 

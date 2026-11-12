@@ -36,8 +36,11 @@
       # ssh with keys only root can read, e.g. `sb root@<ip>`
       sb = "pkexec ssh -i /root/.ssh/id_rsa_byda";
       sm = "pkexec ssh -i /root/.ssh/oldmac";
-      gp = "GIT_SSH_COMMAND='pkexec ssh -i /root/.ssh/id_rsa_byda -o IdentitiesOnly=yes' git push";
-      gpl = "GIT_SSH_COMMAND='pkexec ssh -i /root/.ssh/id_rsa_byda -o IdentitiesOnly=yes' git pull";
+      # GIT_SSH_VARIANT=ssh: without it git first runs `ssh -G <host>` just to detect the ssh
+      # variant, and that probe goes through pkexec too - a second yubikey prompt for a local
+      # call that never touches the network. Telling git it is OpenSSH skips it.
+      gp = "GIT_SSH_VARIANT=ssh GIT_SSH_COMMAND='pkexec ssh -i /root/.ssh/id_rsa_byda -o IdentitiesOnly=yes' git push";
+      gpl = "GIT_SSH_VARIANT=ssh GIT_SSH_COMMAND='pkexec ssh -i /root/.ssh/id_rsa_byda -o IdentitiesOnly=yes' git pull";
       # path: keeps the flake to this directory instead of the whole ~ git repo
       hms = "home-manager switch --flake path:$HOME/.config/home-manager#byda";
     };
