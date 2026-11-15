@@ -42,7 +42,7 @@
       gp = "GIT_SSH_VARIANT=ssh GIT_SSH_COMMAND='pkexec ssh -i /root/.ssh/id_rsa_byda -o IdentitiesOnly=yes' git push";
       gpl = "GIT_SSH_VARIANT=ssh GIT_SSH_COMMAND='pkexec ssh -i /root/.ssh/id_rsa_byda -o IdentitiesOnly=yes' git pull";
       # path: keeps the flake to this directory instead of the whole ~ git repo
-      hms = "home-manager switch --flake path:$HOME/.config/home-manager#byda";
+      hms = "home-manager switch --impure --flake path:$HOME/.config/home-manager#$USER";
     };
   };
 }

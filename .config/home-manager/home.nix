@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, username, ... }:
 {
   imports = [
     ./modules/shell.nix
@@ -10,8 +10,8 @@
     ./modules/debug.nix
   ];
 
-  home.username = "byda";
-  home.homeDirectory = "/home/byda";
+  home.username = username;
+  home.homeDirectory = "/home/${username}";
   home.stateVersion = "25.11";
 
   programs.home-manager.enable = true;

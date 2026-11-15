@@ -1,5 +1,5 @@
 {
-  description = "byda home-manager";
+  description = "home-manager configuration";
 
   inputs = {
     # Same release as the NixOS system
@@ -15,6 +15,11 @@
   outputs = { nixpkgs, nixpkgs-unstable, home-manager, ... }:
     let
       system = "x86_64-linux";
+      # builtins.getEnv returns "" unless evaluated with --impure.
+      username =
+        let user = builtins.getEnv "USER";
+        in if user != "" then user
+        else throw "USER is unset: run home-manager with --impure";
       pkgs = import nixpkgs {
         inherit system;
         config.allowUnfree = true;
@@ -25,9 +30,9 @@
       };
     in
     {
-      homeConfigurations.byda = home-manager.lib.homeManagerConfiguration {
+      homeConfigurations.${username} = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
-        extraSpecialArgs = { inherit pkgsUnstable; };
+        extraSpecialArgs = { inherit pkgsUnstable username; };
         modules = [ ./home.nix ];
       };
     };
